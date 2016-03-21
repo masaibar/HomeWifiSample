@@ -12,14 +12,34 @@
     tools:context="com.masaibar.homewifisample.MainActivity">
 
     <Button
-        android:text="open map"
         android:id="@+id/button_map"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="open map"/>
 
     <Button
         android:id="@+id/button_toast"
-        android:text="toast latlng"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:text="toast latlng"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginBottom="10dp"
+        android:layout_marginTop="10dp"
+        android:background="#000000"
+        />
+
+    <Button
+        android:id="@+id/button_start_fence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="start fence"/>
+
+    <Button
+        android:id="@+id/button_stop_fence"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="stop fence"/>
 </LinearLayout>

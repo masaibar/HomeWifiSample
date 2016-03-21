@@ -5,7 +5,23 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+
+public class MainActivity extends AppCompatActivity implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+
+    //半径
+    private final static float FENCE_RADIUS_METERS = 200.0f;
+
+    //ジオフェンスID
+    private final static String FENCE_ID = "test";
+
+    //設置、削除を示す定数
+    private final static int ADD_FENCE = 0;
+    private final static int REMOVE_FENCE = 1;
+
+    private boolean mInProgress;
+    private int mRequestType;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,5 +44,22 @@ public class MainActivity extends AppCompatActivity {
                         Toast.LENGTH_SHORT).show();
             }
         });
+
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+
     }
 }
