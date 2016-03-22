@@ -8,6 +8,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -57,6 +58,15 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
                 mMarker = mGoogleMap.addMarker(getMarkerOptions(latLng));
                 saveLatLng(getApplicationContext(), latLng);
+            }
+        });
+        mGoogleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
+            @Override
+            public boolean onMyLocationButtonClick() {
+                if (!GPSUtil.isEnabledGPS(getApplicationContext())) {
+                    GPSUtil.jumtToGPSSettings(getApplicationContext());
+                }
+                return false;
             }
         });
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
