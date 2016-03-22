@@ -43,6 +43,10 @@ public class MainActivity extends AppCompatActivity
                         MainActivity.this,
                         MapActivity.getLatLng(getApplicationContext()).toString(),
                         Toast.LENGTH_SHORT).show();
+                Toast.makeText(
+                        MainActivity.this,
+                        LocationUtil.getAddressFromLatLng(getApplicationContext(), MapActivity.getLatLng(getApplicationContext())),
+                        Toast.LENGTH_SHORT).show();
             }
         });
 
