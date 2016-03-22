@@ -62,9 +62,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mGoogleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
             @Override
             public boolean onMyLocationButtonClick() {
-                if (!GPSUtil.isEnabledGPS(getApplicationContext())) {
-                    //todo あとでアラートはさもう http://www.noveluck.co.jp/blog/archives/159 http://mslgt.hatenablog.com/entry/2015/12/29/004133
-                    GPSUtil.jumtToGPSSettings(getApplicationContext());
+                if (!LocationUtil.isEnabledGPS(getApplicationContext())) {
+                    //todo あとでダイアログはさもう http://www.noveluck.co.jp/blog/archives/159 http://mslgt.hatenablog.com/entry/2015/12/29/004133
+                    LocationUtil.jumtToGPSSettings(getApplicationContext());
                 }
                 return false;
             }
@@ -80,6 +80,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private MarkerOptions getMarkerOptions(LatLng latLng) {
         MarkerOptions options = new MarkerOptions();
         options.position(latLng);
+        options.title(LocationUtil.getAddressFromLatLng(getApplicationContext(), latLng));
         options.snippet(latLng.toString());
 
         return options;
