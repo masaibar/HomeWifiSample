@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
@@ -44,6 +45,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
+        addMarkerSavedLatLngIfNeed();
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
@@ -52,11 +54,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 }
 
                 Toast.makeText(MapActivity.this, latLng.toString(), Toast.LENGTH_SHORT).show();
-                MarkerOptions options = new MarkerOptions();
-                options.position(latLng);
-                options.snippet(latLng.toString());
 
-                mMarker = mGoogleMap.addMarker(options);
+                mMarker = mGoogleMap.addMarker(getMarkerOptions(latLng));
                 saveLatLng(getApplicationContext(), latLng);
             }
         });
@@ -64,7 +63,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             return;
         }
-        googleMap.setMyLocationEnabled(true);
+
+        mGoogleMap.setMyLocationEnabled(true);
+    }
+
+    private MarkerOptions getMarkerOptions(LatLng latLng) {
+        MarkerOptions options = new MarkerOptions();
+        options.position(latLng);
+        options.snippet(latLng.toString());
+
+        return options;
+    }
+
+    private void addMarkerSavedLatLngIfNeed() {
+        Context context = getApplicationContext();
+        if (hasSavedLatLng(context)) {
+            mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(getLatLng(context), 15));
+            mMarker = mGoogleMap.addMarker(getMarkerOptions(getLatLng(context)));
+        }
     }
 
     public static void saveLatLng(Context context, LatLng latLng) {
@@ -78,5 +94,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         double latitude = Double.longBitsToDouble(preferences.getLong(PREF_KEY_LAT, 0));
         double longitude = Double.longBitsToDouble(preferences.getLong(PREF_KEY_LNG, 0));
         return new LatLng(latitude, longitude);
+    }
+
+    public static boolean hasSavedLatLng(Context context) {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        return preferences.contains(PREF_KEY_LAT) && preferences.contains(PREF_KEY_LNG);
     }
 }
