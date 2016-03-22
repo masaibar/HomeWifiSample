@@ -8,7 +8,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -64,6 +63,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             @Override
             public boolean onMyLocationButtonClick() {
                 if (!GPSUtil.isEnabledGPS(getApplicationContext())) {
+                    //todo あとでアラートはさもう http://www.noveluck.co.jp/blog/archives/159 http://mslgt.hatenablog.com/entry/2015/12/29/004133
                     GPSUtil.jumtToGPSSettings(getApplicationContext());
                 }
                 return false;
