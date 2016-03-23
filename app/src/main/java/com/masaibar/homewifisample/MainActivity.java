@@ -4,7 +4,6 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.location.LocationListener;
 import android.net.Uri;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -18,9 +17,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.Result;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingApi;
 import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -63,7 +60,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.button_toast).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LatLng latLng = MapActivity.getLatLng(context);
+                LatLng latLng = MapActivity.readLatLng(context);
                 Toast.makeText(context, latLng.toString(),Toast.LENGTH_SHORT).show();
                 Toast.makeText(context,  LocationUtil.getAddressFromLatLng(context, latLng), Toast.LENGTH_SHORT).show();
             }
@@ -102,7 +99,7 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onConnected(Bundle bundle) {
-        LatLng latLng = MapActivity.getLatLng(getApplicationContext());
+        LatLng latLng = MapActivity.readLatLng(getApplicationContext());
         switch (mRequestType) {
             case ADD_FENCE:
                 addFence(

@@ -6,6 +6,7 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.LocationManager;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.maps.model.LatLng;
 
@@ -32,6 +33,7 @@ public class LocationUtil {
 
     /**
      * リバースジオコーディングを行う
+     * http://seesaawiki.jp/w/moonlight_aska/d/%B0%CC%C3%D6%BE%F0%CA%F3%A4%AB%A4%E9%BD%BB%BD%EA%A4%F2%BC%E8%C6%C0%A4%B9%A4%EB
      */
     public static String getAddressFromLatLng(Context context, LatLng latLng) {
         Geocoder geocoder = new Geocoder(context, Locale.getDefault());
@@ -48,5 +50,25 @@ public class LocationUtil {
             e.printStackTrace();
         }
         return stringBuffer.toString();
+    }
+
+    /**
+     * ジオコーディングを行う
+     * @param addressStr 住所文字列
+     * @return Latlng 緯度経度
+     */
+    @Nullable
+    public static LatLng getLatLngFromAddress(Context context, String addressStr) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addressList = geocoder.getFromLocationName(addressStr, 1);
+            if (addressList != null && addressList.size() > 0) {
+                Address address = addressList.get(0);
+                return new LatLng(address.getLatitude(), address.getLongitude());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }
