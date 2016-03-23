@@ -36,12 +36,13 @@ public class MainActivity extends AppCompatActivity
     //ジオフェンスID
     private final static String FENCE_ID = "test";
 
-    //設置、削除を示す定数
-    private final static int ADD_FENCE = 0;
-    private final static int REMOVE_FENCE = 1;
+    private enum RequestType {
+        ADD_FENCE,   //設置
+        REMOVE_FENCE //削除
+    }
 
     private boolean mInProgress;
-    private int mRequestType;
+    private RequestType mRequestType;
     private GoogleApiClient mGoogleApiClient;
 
     @Override
@@ -55,28 +56,23 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.button_map).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                MapActivity.start(getApplicationContext());
+                MapActivity.start(context);
             }
         });
 
         findViewById(R.id.button_toast).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(
-                        MainActivity.this,
-                        MapActivity.getLatLng(getApplicationContext()).toString(),
-                        Toast.LENGTH_SHORT).show();
-                Toast.makeText(
-                        MainActivity.this,
-                        LocationUtil.getAddressFromLatLng(getApplicationContext(), MapActivity.getLatLng(getApplicationContext())),
-                        Toast.LENGTH_SHORT).show();
+                LatLng latLng = MapActivity.getLatLng(context);
+                Toast.makeText(context, latLng.toString(),Toast.LENGTH_SHORT).show();
+                Toast.makeText(context,  LocationUtil.getAddressFromLatLng(context, latLng), Toast.LENGTH_SHORT).show();
             }
         });
 
         findViewById(R.id.button_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRequestType = ADD_FENCE;
+                mRequestType = RequestType.ADD_FENCE;
                 connectGoogleApiClient();
             }
         });
@@ -84,7 +80,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.button_stop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mRequestType = REMOVE_FENCE;
+                mRequestType = RequestType.REMOVE_FENCE;
                 connectGoogleApiClient();
             }
         });
@@ -137,7 +133,7 @@ public class MainActivity extends AppCompatActivity
         mInProgress = false;
     }
 
-    private boolean ServiceConnected() {
+    private boolean ServiceConnected() {//TODO GooglePlayServiceへの接続確認
         int resultCode = GooglePlayServicesUtil.isGooglePlayServicesAvailable(getApplicationContext());
         return true;
     }
