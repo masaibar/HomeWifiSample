@@ -129,7 +129,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private CircleOptions getCircleOptions(LatLng latLng) {
         CircleOptions options = new CircleOptions()
                 .center(latLng)
-                .radius(200.0f); //単位x
+                .radius(200.0f); //単位は1.0f/mっぽい
         return options;
     }
 
