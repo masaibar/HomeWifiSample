@@ -32,14 +32,14 @@
         />
 
     <Button
-        android:id="@+id/button_start_fence"
+        android:id="@+id/button_start"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="start fence"/>
+        android:text="start"/>
 
     <Button
-        android:id="@+id/button_stop_fence"
+        android:id="@+id/button_stop"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="stop fence"/>
+        android:text="stop"/>
 </LinearLayout>
