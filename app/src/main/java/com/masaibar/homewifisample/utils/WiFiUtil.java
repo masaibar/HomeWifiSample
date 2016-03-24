@@ -1,4 +1,4 @@
-package com.masaibar.homewifisample;
+package com.masaibar.homewifisample.utils;
 
 import android.content.Context;
 import android.net.wifi.WifiManager;
