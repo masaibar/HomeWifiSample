@@ -6,7 +6,7 @@ import android.net.wifi.WifiManager;
 /**
  * Created by masaibar on 2016/03/24.
  */
-public class WiFiUtil {
+public class WifiUtil {
 
     /**
      * Wifiの状態を返す

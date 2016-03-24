@@ -10,6 +10,7 @@ import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
+import com.masaibar.homewifisample.utils.WifiUtil;
 
 /**
  * Created by masaibar on 2016/03/24.
@@ -39,23 +40,36 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
         switch (transition) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
-                Log.d("!!!", "transition enter");
-                Toast.makeText(GeofenceTransitionsIntentService.this, "transition enter", Toast.LENGTH_SHORT).show();
-                sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "enter");
+                onEnter(event);
                 break;
-            case Geofence.GEOFENCE_TRANSITION_DWELL:
-                Log.d("!!!", "transition dwell");
-                Toast.makeText(GeofenceTransitionsIntentService.this, "transition dwell", Toast.LENGTH_SHORT).show();
-                sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "dwell");
-                break;
+
+//            case Geofence.GEOFENCE_TRANSITION_DWELL:
+//                Log.d("!!!", "transition dwell");
+//                Toast.makeText(GeofenceTransitionsIntentService.this, "transition dwell", Toast.LENGTH_SHORT).show();
+//                sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "dwell");
+//                break;
+
             case Geofence.GEOFENCE_TRANSITION_EXIT:
-                Log.d("!!!", "transition exit");
-                Toast.makeText(GeofenceTransitionsIntentService.this, "transition exit", Toast.LENGTH_SHORT).show();
-                sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "exit");
+                onExitFence(event);
                 break;
+
             default:
                 break;
         }
+    }
+
+    private void onEnter(GeofencingEvent event) {
+        Log.d("!!!", "transition enter");
+        Toast.makeText(GeofenceTransitionsIntentService.this, "transition enter", Toast.LENGTH_SHORT).show();
+        sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "enter");
+        WifiUtil.enableWifi(getApplicationContext());
+    }
+
+    private void onExitFence(GeofencingEvent event) {
+        Log.d("!!!", "transition exit");
+        Toast.makeText(GeofenceTransitionsIntentService.this, "transition exit", Toast.LENGTH_SHORT).show();
+        sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "exit");
+        WifiUtil.disableWifi(getApplicationContext());
     }
 
     private void sendNotification(String name, String result) {
