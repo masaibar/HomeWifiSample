@@ -25,10 +25,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity
-        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback{
+        implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback {
 
     //半径
-    public final static float FENCE_RADIUS_METERS = 50.0f; //50メートル
+//    public final static float FENCE_RADIUS_METERS = 50.0f; //50メートル
+    public final static float FENCE_RADIUS_METERS = 20.0f; //20メートル
 
     //ジオフェンスID
     private final static String FENCE_ID = "test";
@@ -61,8 +62,8 @@ public class MainActivity extends AppCompatActivity
             @Override
             public void onClick(View v) {
                 LatLng latLng = MapActivity.readLatLng(context);
-                Toast.makeText(context, latLng.toString(),Toast.LENGTH_SHORT).show();
-                Toast.makeText(context,  LocationUtil.getAddressFromLatLng(context, latLng), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, latLng.toString(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, LocationUtil.getAddressFromLatLng(context, latLng), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -106,8 +107,7 @@ public class MainActivity extends AppCompatActivity
                         latLng.latitude,
                         latLng.longitude,
                         FENCE_RADIUS_METERS,
-                        FENCE_ID,
-                        "http://www.yahoo.co.jp"
+                        FENCE_ID
                 );
                 break;
 
@@ -135,28 +135,22 @@ public class MainActivity extends AppCompatActivity
         return true;
     }
 
-    private void addFence(double latitude, double longitude, float radius, String requestId, String broadcastUrl) {
+    private void addFence(double latitude, double longitude, float radius, String requestId) {
+        Toast.makeText(MainActivity.this, "addFence", Toast.LENGTH_SHORT).show();
 
         Geofence geofence = new Geofence.Builder()
                 .setRequestId(requestId)
                 .setCircularRegion(latitude, longitude, radius)
                 .setExpirationDuration(Geofence.NEVER_EXPIRE) //無期限
-                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER) //fenceに入ったことを認識
+                .setTransitionTypes(
+                        Geofence.GEOFENCE_TRANSITION_ENTER |
+                                Geofence.GEOFENCE_TRANSITION_EXIT) //fenceへの出入りを監視する
                 .build();
 
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
         builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofence(geofence);
         GeofencingRequest geofencingRequest = builder.build();
-
-        //フェンス内に入った時に指定のURIを表示するインテントを投げるようにする
-        Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(broadcastUrl));
-        PendingIntent pendingIntent = PendingIntent.getActivity(
-                getApplicationContext(),
-                0,
-                intent,
-                PendingIntent.FLAG_UPDATE_CURRENT
-        );
 
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -166,11 +160,18 @@ public class MainActivity extends AppCompatActivity
         LocationServices.GeofencingApi.addGeofences(
                 mGoogleApiClient,
                 geofencingRequest,
-                pendingIntent
+                getGeofencePendingIntent()
         ).setResultCallback(this);
     }
 
+    private PendingIntent getGeofencePendingIntent() {
+        Context context = getApplicationContext();
+        Intent intent = new Intent(context, GeofenceTransitionsIntentService.class);
+        return PendingIntent.getService(context, 0, intent, PendingIntent.FLAG_CANCEL_CURRENT);
+    }
+
     private void removeFence(String requestId) {
+        Toast.makeText(MainActivity.this, "removeFence", Toast.LENGTH_SHORT).show();
         List<String> fenceIdList = new ArrayList<>();
         fenceIdList.add(requestId);
 
