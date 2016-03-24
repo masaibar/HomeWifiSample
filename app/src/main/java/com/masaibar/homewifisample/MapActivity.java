@@ -10,6 +10,7 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -33,6 +34,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private GoogleMap mGoogleMap;
     private Marker mMarker;
+    private Circle mCircle;
 
     public static void start(Context context) {
         Intent intent = new Intent(context, MapActivity.class);
@@ -78,25 +80,23 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (mGoogleMap == null) {
                 return;
             }
-            addMarkerAndAnimateCamera(LocationUtil.getLatLngFromAddress(context, addressStr));
+            mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
+                            LocationUtil.getLatLngFromAddress(context, addressStr),
+                            15)
+            );
         }
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-        addMarkerAndAnimateCameraSavedLatLngIfNeed();
+        determinePointBySavedLatLngIfNeed();
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                if (mMarker != null) {
-                    mMarker.remove();
-                }
-
                 Toast.makeText(MapActivity.this, latLng.toString(), Toast.LENGTH_SHORT).show();
 
-                mMarker = mGoogleMap.addMarker(getMarkerOptions(latLng));
-                saveLatLng(getApplicationContext(), latLng);
+                determinePoint(latLng);
             }
         });
         mGoogleMap.setOnMyLocationButtonClickListener(new GoogleMap.OnMyLocationButtonClickListener() {
@@ -107,6 +107,24 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
                     LocationUtil.jumtToGPSSettings(getApplicationContext());
                 }
                 return false;
+            }
+        });
+        mGoogleMap.setOnMarkerDragListener(new GoogleMap.OnMarkerDragListener() {
+            @Override
+            public void onMarkerDragStart(Marker marker) {
+                //do nothing
+            }
+
+            @Override
+            public void onMarkerDrag(Marker marker) {
+                removeCircle();
+                addCircle(marker.getPosition());
+            }
+
+            @Override
+            public void onMarkerDragEnd(Marker marker) {
+                LatLng latLng = marker.getPosition();
+                determinePoint(latLng);
             }
         });
         if (ActivityCompat.checkSelfPermission(this, android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
@@ -120,6 +138,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private MarkerOptions getMarkerOptions(LatLng latLng) {
         MarkerOptions options = new MarkerOptions();
         options.position(latLng);
+        options.draggable(true);
         options.title(LocationUtil.getAddressFromLatLng(getApplicationContext(), latLng));
         options.snippet(latLng.toString());
 
@@ -129,26 +148,29 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private CircleOptions getCircleOptions(LatLng latLng) {
         CircleOptions options = new CircleOptions()
                 .center(latLng)
-                .radius(200.0f); //単位は1.0f/mっぽい
+                .strokeColor(Color.argb(0x99, 0x33, 0x99, 0xFF))
+                .strokeWidth(10.0f)
+                .radius(MainActivity.FENCE_RADIUS_METERS); //単位は1.0f/mっぽい
         return options;
     }
 
-    private void addMarkerAndAnimateCameraSavedLatLngIfNeed() {
+    private void determinePointBySavedLatLngIfNeed() {
         Context context = getApplicationContext();
         if (hasSavedLatLng(context)) {
-            addMarkerAndAnimateCamera(readLatLng(context));
+            determinePoint(readLatLng(context));
         }
     }
 
-    private void addMarkerAndAnimateCamera(LatLng latLng) {
-        if (mMarker != null) {
-            mMarker.remove();
+    private void determinePoint(LatLng latLng) {
+        removeMarker();
+        removeCircle();
+        if (mGoogleMap == null) {
+            return;
         }
         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-        mMarker = mGoogleMap.addMarker(getMarkerOptions(latLng));
-        Circle circle = mGoogleMap.addCircle(getCircleOptions(latLng));
-        circle.setStrokeColor(Color.argb(0x99, 0x33, 0x99, 0xFF));
-        circle.setStrokeWidth(10.0f);
+        addMarker(latLng);
+        addCircle(latLng);
+        saveLatLng(getApplicationContext(), latLng);
     }
 
     public static void saveLatLng(Context context, LatLng latLng) {
@@ -167,5 +189,25 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     public static boolean hasSavedLatLng(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         return preferences.contains(PREF_KEY_LAT) && preferences.contains(PREF_KEY_LNG);
+    }
+
+    private void addMarker(LatLng latLng) {
+        mMarker = mGoogleMap.addMarker(getMarkerOptions(latLng));
+    }
+
+    private void removeMarker() {
+        if (mMarker != null) {
+            mMarker.remove();
+        }
+    }
+
+    private void addCircle(LatLng latLng) {
+        mCircle = mGoogleMap.addCircle(getCircleOptions(latLng));
+    }
+
+    private void removeCircle() {
+        if (mCircle != null) {
+            mCircle.remove();
+        }
     }
 }
