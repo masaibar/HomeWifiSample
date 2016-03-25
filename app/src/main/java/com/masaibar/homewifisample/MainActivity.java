@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
 
+import com.google.android.gms.analytics.HitBuilders;
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -20,6 +22,7 @@ import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.masaibar.homewifisample.utils.LocationUtil;
+import com.masaibar.homewifisample.utils.TrackerUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,10 +45,14 @@ public class MainActivity extends AppCompatActivity
     private RequestType mRequestType;
     private GoogleApiClient mGoogleApiClient;
 
+    private Tracker mTracker;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        mTracker = getTracker();
 
         final Context context = getApplicationContext();
         mInProgress = false;
@@ -53,6 +60,7 @@ public class MainActivity extends AppCompatActivity
         findViewById(R.id.button_map).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                TrackerUtil.sendEvent(mTracker, "Click", "Map");
                 MapActivity.start(context);
             }
         });
@@ -81,8 +89,12 @@ public class MainActivity extends AppCompatActivity
                 connectGoogleApiClient();
             }
         });
+    }
 
-
+    @Override
+    protected void onResume() {
+        TrackerUtil.sendScreenView(mTracker, MainActivity.class.getSimpleName());
+        super.onResume();
     }
 
     private void connectGoogleApiClient() {
@@ -180,5 +192,10 @@ public class MainActivity extends AppCompatActivity
     @Override
     public void onResult(Result result) {
 
+    }
+
+    private Tracker getTracker() {
+        HomeWifiApplication application = (HomeWifiApplication) this.getApplication();
+        return application.getDefaultTracker();
     }
 }
