@@ -5,11 +5,11 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
+import com.masaibar.homewifisample.utils.DebugUtil;
 import com.masaibar.homewifisample.utils.WifiUtil;
 
 /**
@@ -30,8 +30,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         GeofencingEvent event = GeofencingEvent.fromIntent(intent);
 
         if (event.hasError()) {
-            Log.d("!!!", "event has error");
-            Toast.makeText(GeofenceTransitionsIntentService.this, "event has error", Toast.LENGTH_SHORT).show();
+            DebugUtil.log("event has error " + event.getErrorCode());
             return;
         }
 
@@ -44,7 +43,6 @@ public class GeofenceTransitionsIntentService extends IntentService {
                 break;
 
 //            case Geofence.GEOFENCE_TRANSITION_DWELL:
-//                Log.d("!!!", "transition dwell");
 //                Toast.makeText(GeofenceTransitionsIntentService.this, "transition dwell", Toast.LENGTH_SHORT).show();
 //                sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "dwell");
 //                break;
@@ -59,15 +57,13 @@ public class GeofenceTransitionsIntentService extends IntentService {
     }
 
     private void onEnter(GeofencingEvent event) {
-        Log.d("!!!", "transition enter");
-        Toast.makeText(GeofenceTransitionsIntentService.this, "transition enter", Toast.LENGTH_SHORT).show();
+        DebugUtil.log("transition enter");
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "enter");
         WifiUtil.enableWifi(getApplicationContext());
     }
 
     private void onExitFence(GeofencingEvent event) {
-        Log.d("!!!", "transition exit");
-        Toast.makeText(GeofenceTransitionsIntentService.this, "transition exit", Toast.LENGTH_SHORT).show();
+        DebugUtil.log("transition exit");
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "exit");
         WifiUtil.disableWifi(getApplicationContext());
     }

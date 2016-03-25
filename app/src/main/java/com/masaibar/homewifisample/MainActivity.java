@@ -28,8 +28,7 @@ public class MainActivity extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback {
 
     //半径
-//    public final static float FENCE_RADIUS_METERS = 50.0f; //50メートル
-    public final static float FENCE_RADIUS_METERS = 20.0f; //20メートル
+    public final static float FENCE_RADIUS_METERS = 50.0f; //50メートル 70くらいがいいかも
 
     //ジオフェンスID
     private final static String FENCE_ID = "test";
