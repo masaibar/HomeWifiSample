@@ -35,6 +35,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private GoogleMap mGoogleMap;
     private Marker mMarker;
     private Circle mCircle;
+    private float mZoomLevel = 17.0f; //マップのズームレベル
 
     public static void start(Context context) {
         Intent intent = new Intent(context, MapActivity.class);
@@ -80,9 +81,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
             if (mGoogleMap == null) {
                 return;
             }
+            mZoomLevel = mGoogleMap.getCameraPosition().zoom;
             mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(
-                            LocationUtil.getLatLngFromAddress(context, addressStr),
-                            15)
+                    LocationUtil.getLatLngFromAddress(context, addressStr),
+                    mZoomLevel)
             );
         }
     }
@@ -90,12 +92,11 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mGoogleMap = googleMap;
-        determinePointBySavedLatLngIfNeed();
+        setUpMap();
         mGoogleMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
             @Override
             public void onMapClick(LatLng latLng) {
-                Toast.makeText(MapActivity.this, latLng.toString(), Toast.LENGTH_SHORT).show();
-
+                Toast.makeText(MapActivity.this, latLng.toString(), Toast.LENGTH_SHORT).show(); //todo 消す
                 determinePoint(latLng);
             }
         });
@@ -154,20 +155,33 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         return options;
     }
 
-    private void determinePointBySavedLatLngIfNeed() {
+    private void setUpMap() {
         Context context = getApplicationContext();
         if (hasSavedLatLng(context)) {
-            determinePoint(readLatLng(context));
+            setUpPoint(readLatLng(context));
+        } else {
+            //TODO 保存してある座標がない場合は現在地を表示
         }
     }
 
+    private void setUpPoint(LatLng latLng) {
+        determinePoint(latLng, true);
+    }
+
     private void determinePoint(LatLng latLng) {
+        determinePoint(latLng, false);
+    }
+
+    private void determinePoint(LatLng latLng, boolean isSetup) {
         removeMarker();
         removeCircle();
         if (mGoogleMap == null) {
             return;
         }
-        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+        if (!isSetup) {
+            mZoomLevel = mGoogleMap.getCameraPosition().zoom;
+        }
+        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, mZoomLevel));
         addMarker(latLng);
         addCircle(latLng);
         saveLatLng(getApplicationContext(), latLng);
