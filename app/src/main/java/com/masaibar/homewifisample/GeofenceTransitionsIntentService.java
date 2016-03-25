@@ -5,11 +5,12 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
-import android.widget.Toast;
 
+import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.masaibar.homewifisample.utils.DebugUtil;
+import com.masaibar.homewifisample.utils.TrackerUtil;
 import com.masaibar.homewifisample.utils.WifiUtil;
 
 /**
@@ -17,9 +18,23 @@ import com.masaibar.homewifisample.utils.WifiUtil;
  */
 public class GeofenceTransitionsIntentService extends IntentService {
 
+    private static final String TR_CAT = "GeofencingEvent";
+    private static final String TR_ACT_HAS_ERROR = "HasError";
+    private static final String TR_ACT_ENTER = "Enter";
+    private static final String TR_ACT_EXIT = "Exit";
+
+    private Tracker mTracker;
+
     //参考：http://stackoverflow.com/questions/11859403/no-empty-constructor-when-create-a-service
     public GeofenceTransitionsIntentService() {
         super("GeofenceTransitionIntentService");
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+
+        mTracker = getTracker();
     }
 
     @Override
@@ -30,14 +45,12 @@ public class GeofenceTransitionsIntentService extends IntentService {
         GeofencingEvent event = GeofencingEvent.fromIntent(intent);
 
         if (event.hasError()) {
+            TrackerUtil.sendEvent(mTracker, TR_CAT, TR_ACT_HAS_ERROR);
             DebugUtil.log("event has error " + event.getErrorCode());
             return;
         }
 
-        //Geofence内での動きを取得
-        int transition = event.getGeofenceTransition();
-
-        switch (transition) {
+        switch (event.getGeofenceTransition()) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 onEnter(event);
                 break;
@@ -57,12 +70,14 @@ public class GeofenceTransitionsIntentService extends IntentService {
     }
 
     private void onEnter(GeofencingEvent event) {
+        TrackerUtil.sendEvent(mTracker, TR_CAT, TR_ACT_ENTER);
         DebugUtil.log("transition enter");
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "enter");
         WifiUtil.enableWifi(getApplicationContext());
     }
 
     private void onExitFence(GeofencingEvent event) {
+        TrackerUtil.sendEvent(mTracker, TR_CAT, TR_ACT_EXIT);
         DebugUtil.log("transition exit");
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "exit");
         WifiUtil.disableWifi(getApplicationContext());
@@ -78,6 +93,10 @@ public class GeofenceTransitionsIntentService extends IntentService {
 
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         manager.notify(0, builder.build());
+    }
 
+    private Tracker getTracker() {
+        HomeWifiApplication application = (HomeWifiApplication) this.getApplication();
+        return application.getDefaultTracker();
     }
 }
