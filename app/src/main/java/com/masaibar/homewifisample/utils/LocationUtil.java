@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
@@ -70,5 +71,14 @@ public class LocationUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * (x1, y1)と(x2, y2)の二点間の距離を返す
+     */
+    public static float getDistance(double x1, double y1, double x2, double y2) {
+        float[] results = new float[3];
+        Location.distanceBetween(x1, y1, x2, y2, results);
+        return results[0];
     }
 }
