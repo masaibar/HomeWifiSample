@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
 import android.location.LocationManager;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
@@ -70,5 +71,18 @@ public class LocationUtil {
             e.printStackTrace();
         }
         return null;
+    }
+
+    /**
+     * 二点のLatLng間の距離を
+     */
+    public static float getDistanceMeters(LatLng latLng1, LatLng latLng2) {
+        float[] results = new float[3];
+        Location.distanceBetween(
+                latLng1.latitude, latLng1.longitude,
+                latLng2.latitude, latLng2.longitude,
+                results);
+
+        return results[0];
     }
 }
