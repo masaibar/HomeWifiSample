@@ -109,6 +109,16 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void disconnectGoogleApiClient() {
+        mInProgress = false;
+        if (mGoogleApiClient == null) {
+            return;
+        }
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
     @Override
     public void onConnected(Bundle bundle) {
         LatLng latLng = MapActivity.readLatLng(getApplicationContext());
@@ -173,6 +183,8 @@ public class MainActivity extends AppCompatActivity
                 geofencingRequest,
                 getGeofencePendingIntent()
         ).setResultCallback(this);
+
+        disconnectGoogleApiClient();
     }
 
     private PendingIntent getGeofencePendingIntent() {
@@ -187,6 +199,8 @@ public class MainActivity extends AppCompatActivity
         fenceIdList.add(requestId);
 
         LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient, fenceIdList);
+
+        disconnectGoogleApiClient();
     }
 
     @Override
