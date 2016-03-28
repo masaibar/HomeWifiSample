@@ -165,11 +165,13 @@ public class MainActivity extends AppCompatActivity
                 .setExpirationDuration(Geofence.NEVER_EXPIRE) //無期限
                 .setTransitionTypes(
                         Geofence.GEOFENCE_TRANSITION_ENTER |
-                                Geofence.GEOFENCE_TRANSITION_EXIT) //fenceへの出入りを監視する
+                                Geofence.GEOFENCE_TRANSITION_DWELL |
+                                Geofence.GEOFENCE_TRANSITION_EXIT) //fenceへの出入りと滞在を監視する
+                .setLoiteringDelay(300000)
                 .build();
 
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER | GeofencingRequest.INITIAL_TRIGGER_DWELL);
         builder.addGeofence(geofence);
         GeofencingRequest geofencingRequest = builder.build();
 

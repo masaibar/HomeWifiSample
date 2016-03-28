@@ -30,6 +30,7 @@ public class GeofenceTransitionsIntentService extends IntentService
     private static final String TR_CAT = "GeofencingEvent";
     private static final String TR_ACT_HAS_ERROR = "HasError";
     private static final String TR_ACT_ENTER = "Enter";
+    private static final String TR_ACT_DWELL = "Dwell";
     private static final String TR_ACT_EXIT = "Exit";
 
     private GoogleApiClient mGoogleApiClient;
@@ -70,6 +71,7 @@ public class GeofenceTransitionsIntentService extends IntentService
                         break;
 
                     case Geofence.GEOFENCE_TRANSITION_DWELL:
+                        onDwell(mGeofencingEvent);
                         break;
 
                     case Geofence.GEOFENCE_TRANSITION_EXIT:
@@ -95,7 +97,6 @@ public class GeofenceTransitionsIntentService extends IntentService
 
     @Override
     public void onLocationChanged(Location location) {
-        DebugUtil.log("!!!!!!!! onLocationChanged" + location.getLatitude() + ", " + location.getLongitude());
     }
 
     @Override
@@ -125,6 +126,13 @@ public class GeofenceTransitionsIntentService extends IntentService
         int distance = (int) LocationUtil.getDistanceMeters(MapActivity.readLatLng(getApplicationContext()), new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "enter " + distance);
         WifiUtil.enableWifi(getApplicationContext());
+    }
+
+    private void onDwell(GeofencingEvent event) {
+        TrackerUtil.sendEvent(mTracker, TR_CAT, TR_ACT_DWELL);
+        int distance = (int) LocationUtil.getDistanceMeters(MapActivity.readLatLng(getApplicationContext()), new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
+        DebugUtil.log("transition dwell");
+        sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "dwell " + distance);
     }
 
     private void onExit(GeofencingEvent event) {
