@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity
         implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, ResultCallback {
 
     //半径
-    public final static float FENCE_RADIUS_METERS = 70.0f; //70メートル
+    public final static float FENCE_RADIUS_METERS = 50.0f; //50メートル
 
     //ジオフェンスID
     private final static String FENCE_ID = "test";
@@ -109,6 +109,16 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void disconnectGoogleApiClient() {
+        mInProgress = false;
+        if (mGoogleApiClient == null) {
+            return;
+        }
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
+    }
+
     @Override
     public void onConnected(Bundle bundle) {
         LatLng latLng = MapActivity.readLatLng(getApplicationContext());
@@ -173,6 +183,8 @@ public class MainActivity extends AppCompatActivity
                 geofencingRequest,
                 getGeofencePendingIntent()
         ).setResultCallback(this);
+
+        disconnectGoogleApiClient();
     }
 
     private PendingIntent getGeofencePendingIntent() {
@@ -187,6 +199,8 @@ public class MainActivity extends AppCompatActivity
         fenceIdList.add(requestId);
 
         LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient, fenceIdList);
+
+        disconnectGoogleApiClient();
     }
 
     @Override
