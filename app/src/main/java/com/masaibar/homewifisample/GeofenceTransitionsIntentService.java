@@ -70,10 +70,6 @@ public class GeofenceTransitionsIntentService extends IntentService
                         onEnter(mGeofencingEvent);
                         break;
 
-                    case Geofence.GEOFENCE_TRANSITION_DWELL:
-                        onDwell(mGeofencingEvent);
-                        break;
-
                     case Geofence.GEOFENCE_TRANSITION_EXIT:
                         onExit(mGeofencingEvent);
                         break;
@@ -126,13 +122,6 @@ public class GeofenceTransitionsIntentService extends IntentService
         int distance = (int) LocationUtil.getDistanceMeters(MapActivity.readLatLng(getApplicationContext()), new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "enter " + distance);
         WifiUtil.enableWifi(getApplicationContext());
-    }
-
-    private void onDwell(GeofencingEvent event) {
-        TrackerUtil.sendEvent(mTracker, TR_CAT, TR_ACT_DWELL);
-        int distance = (int) LocationUtil.getDistanceMeters(MapActivity.readLatLng(getApplicationContext()), new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
-        DebugUtil.log("transition dwell");
-        sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "dwell " + distance);
     }
 
     private void onExit(GeofencingEvent event) {

@@ -55,8 +55,7 @@ public class GeofenceManager implements GoogleApiClient.ConnectionCallbacks, Goo
                 .setExpirationDuration(Geofence.NEVER_EXPIRE) //無期限
                 .setTransitionTypes(
                         Geofence.GEOFENCE_TRANSITION_ENTER |
-                                Geofence.GEOFENCE_TRANSITION_DWELL |
-                                Geofence.GEOFENCE_TRANSITION_EXIT) //fenceへの出入りと滞在を監視する
+                                Geofence.GEOFENCE_TRANSITION_EXIT) //fenceへの出入りを監視する
                 .setLoiteringDelay(300000)
                 .build();
 
@@ -65,7 +64,7 @@ public class GeofenceManager implements GoogleApiClient.ConnectionCallbacks, Goo
 
     private void registGeofence() {
         GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER | GeofencingRequest.INITIAL_TRIGGER_DWELL);
+        builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
         builder.addGeofence(mGeofence);
         GeofencingRequest geofencingRequest = builder.build();
 
