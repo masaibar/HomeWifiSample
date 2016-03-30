@@ -6,10 +6,13 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -72,10 +75,14 @@ public class LocationUtil {
         return stringBuffer.toString();
     }
 
-//    public static float getMetersFromCurrentLatLng(GoogleApiClient googleApiClient, LatLng latLng) {
-//        Location lastLocation =
-//        return getDistanceMeters()
-//    }
+    /**
+     * 現在地からの距離を返す
+     * @return
+     */
+    public static float getDistanceMetersFromCurrentLocation(GoogleApiClient googleApiClient, LatLng latLng) {
+        Location lastLocation = getLastLocation(googleApiClient);
+        return getDistanceMeters(latLng, new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
+    }
 
     /**
      * 二点のLatLng間の距離を返す
@@ -88,5 +95,13 @@ public class LocationUtil {
                 results);
 
         return results[0];
+    }
+
+    public static Location getLastLocation(GoogleApiClient googleApiClient) {
+        if (!googleApiClient.isConnected()) {
+            return null;
+        }
+
+        return LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
     }
 }

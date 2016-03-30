@@ -18,7 +18,6 @@ import com.google.android.gms.location.GeofencingEvent;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.masaibar.homewifisample.utils.DebugUtil;
-import com.masaibar.homewifisample.utils.FusedLocationManager;
 import com.masaibar.homewifisample.utils.LocationUtil;
 import com.masaibar.homewifisample.utils.TrackerUtil;
 import com.masaibar.homewifisample.utils.NetworkUtil;
@@ -62,7 +61,7 @@ public class GeofenceTransitionsIntentService extends IntentService
     @Override
     public void onConnected(Bundle bundle) {
         if (mGoogleApiClient != null) {
-            Location lastLocation = new FusedLocationManager(getApplicationContext(), mGoogleApiClient).getLastLocation();
+            Location lastLocation = LocationUtil.getLastLocation(mGoogleApiClient);
             if (lastLocation != null) {
                 DebugUtil.log("latitude = " + lastLocation.getLatitude() + " longitude = " + lastLocation.getLongitude());
                 switch (mGeofencingEvent.getGeofenceTransition()) {

@@ -4,18 +4,18 @@ import android.content.Context;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.google.android.gms.analytics.Tracker;
-import com.google.android.gms.common.GooglePlayServicesUtil;
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.masaibar.homewifisample.utils.GeofenceManager;
 import com.masaibar.homewifisample.utils.LocationUtil;
+import com.masaibar.homewifisample.utils.NetworkUtil;
 import com.masaibar.homewifisample.utils.TrackerUtil;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
     private final static String FENCE_ID = "test";
 
     private GeofenceManager mGeofenceManager;
+    private GoogleApiClient mGoogleApiClient;
 
     private Tracker mTracker;
 
@@ -55,10 +56,17 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        findViewById(R.id.button_start).setOnClickListener(new View.OnClickListener() {
+        final Button buttonStart = (Button) findViewById(R.id.button_start);
+        buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mGeofenceManager.update(MapActivity.readLatLng(context), FENCE_RADIUS_METERS);
+                LatLng targetLatLng = MapActivity.readLatLng(context);
+                mGeofenceManager.update(targetLatLng, FENCE_RADIUS_METERS);
+                float distance = LocationUtil.getDistanceMetersFromCurrentLocation(mGoogleApiClient, targetLatLng);
+                if (distance > FENCE_RADIUS_METERS) {
+                    //対象範囲外から設定した際の処理
+                    NetworkUtil.disableWifiIfDisconnected(context);
+                }
             }
         });
 
@@ -68,6 +76,28 @@ public class MainActivity extends AppCompatActivity {
                 mGeofenceManager.remove();
             }
         });
+
+        mGoogleApiClient = new GoogleApiClient.Builder(context)
+                .addApi(LocationServices.API)
+                .addConnectionCallbacks(new GoogleApiClient.ConnectionCallbacks() {
+                    @Override
+                    public void onConnected(Bundle bundle) {
+                        buttonStart.setEnabled(true);
+                    }
+
+                    @Override
+                    public void onConnectionSuspended(int i) {
+                        buttonStart.setEnabled(false);
+                    }
+                })
+                .addOnConnectionFailedListener(new GoogleApiClient.OnConnectionFailedListener() {
+                    @Override
+                    public void onConnectionFailed(ConnectionResult connectionResult) {
+                        buttonStart.setEnabled(false);
+                    }
+                })
+                .build();
+        mGoogleApiClient.connect();
     }
 
     @Override
@@ -76,8 +106,23 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        disconnectGoogleApiClient();
+    }
+
     private Tracker getTracker() {
         HomeWifiApplication application = (HomeWifiApplication) this.getApplication();
         return application.getDefaultTracker();
+    }
+
+    private void disconnectGoogleApiClient() {
+        if (mGoogleApiClient == null) {
+            return;
+        }
+        if (mGoogleApiClient.isConnected()) {
+            mGoogleApiClient.disconnect();
+        }
     }
 }
