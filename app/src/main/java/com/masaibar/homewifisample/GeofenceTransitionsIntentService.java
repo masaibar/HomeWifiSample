@@ -19,7 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.masaibar.homewifisample.utils.DebugUtil;
 import com.masaibar.homewifisample.utils.LocationUtil;
 import com.masaibar.homewifisample.utils.TrackerUtil;
-import com.masaibar.homewifisample.utils.WifiUtil;
+import com.masaibar.homewifisample.utils.NetworkUtil;
 
 /**
  * Created by masaibar on 2016/03/24.
@@ -121,7 +121,7 @@ public class GeofenceTransitionsIntentService extends IntentService
         DebugUtil.log("transition enter");
         int distance = (int) LocationUtil.getDistanceMeters(MapActivity.readLatLng(getApplicationContext()), new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "enter " + distance);
-        WifiUtil.enableWifi(getApplicationContext());
+        NetworkUtil.enableWifi(getApplicationContext());
     }
 
     private void onExit(GeofencingEvent event) {
@@ -129,7 +129,7 @@ public class GeofenceTransitionsIntentService extends IntentService
         int distance = (int) LocationUtil.getDistanceMeters(MapActivity.readLatLng(getApplicationContext()), new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()));
         DebugUtil.log("transition exit");
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "exit " + distance);
-        WifiUtil.disableWifi(getApplicationContext());
+        NetworkUtil.disableWifi(getApplicationContext());
     }
 
     private void sendNotification(String title, String text) {
