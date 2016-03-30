@@ -23,6 +23,9 @@ public class NetworkUtil {
      * Wifiを有効にする
      */
     public static void enableWifi(Context context) {
+        if(isWifiConnected(context)) {
+            return;
+        }
         getWifiManager(context).setWifiEnabled(true);
     }
 

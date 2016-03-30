@@ -3,6 +3,8 @@ package com.masaibar.homewifisample;
 import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
@@ -138,6 +140,7 @@ public class GeofenceTransitionsIntentService extends IntentService
                 .setPriority(Notification.PRIORITY_MAX)
                 .setSmallIcon(R.mipmap.ic_launcher)
                 .setContentTitle(title)
+                .setContentIntent(getNotificationIntent())
                 .setContentText(text);
 
         NotificationManager manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -169,5 +172,11 @@ public class GeofenceTransitionsIntentService extends IntentService
             LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, this);
             mGoogleApiClient.disconnect();
         }
+    }
+
+    private PendingIntent getNotificationIntent() {
+        Context context = getApplicationContext();
+        Intent intent = new Intent(context, MainActivity.class);
+        return PendingIntent.getActivity(context, 0, intent, 0);
     }
 }
