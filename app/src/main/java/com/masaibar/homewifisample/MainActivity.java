@@ -16,7 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.masaibar.homewifisample.utils.GeofenceManager;
 import com.masaibar.homewifisample.utils.LocationUtil;
 import com.masaibar.homewifisample.utils.NetworkUtil;
-import com.masaibar.homewifisample.utils.TrackerUtil;
+import com.masaibar.homewifisample.utils.GoogleAnalyticsUtil;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,13 +38,13 @@ public class MainActivity extends AppCompatActivity {
 
         final Context context = getApplicationContext();
 
-        mTracker = getTracker();
+        mTracker = GoogleAnalyticsUtil.getTracker(MainActivity.this);
         mGeofenceManager = new GeofenceManager(context, FENCE_ID);
 
         findViewById(R.id.button_map).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                TrackerUtil.sendEvent(mTracker, "Click", "Map");
+                GoogleAnalyticsUtil.sendEvent(mTracker, "Click", "Map");
                 MapActivity.start(context);
             }
         });
@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        TrackerUtil.sendScreenView(mTracker, MainActivity.class.getSimpleName());
+        GoogleAnalyticsUtil.sendScreenView(mTracker, MainActivity.class.getSimpleName());
         super.onResume();
     }
 
@@ -119,11 +119,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onDestroy() {
         super.onDestroy();
         disconnectGoogleApiClient();
-    }
-
-    private Tracker getTracker() {
-        HomeWifiApplication application = (HomeWifiApplication) this.getApplication();
-        return application.getDefaultTracker();
     }
 
     private void disconnectGoogleApiClient() {

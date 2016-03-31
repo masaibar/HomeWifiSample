@@ -19,7 +19,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.masaibar.homewifisample.utils.DebugUtil;
 import com.masaibar.homewifisample.utils.LocationUtil;
-import com.masaibar.homewifisample.utils.TrackerUtil;
+import com.masaibar.homewifisample.utils.GoogleAnalyticsUtil;
 import com.masaibar.homewifisample.utils.NetworkUtil;
 
 /**
@@ -49,7 +49,7 @@ public class GeofenceTransitionsIntentService extends IntentService
     public void onCreate() {
         super.onCreate();
 
-        mTracker = getTracker();
+        mTracker = GoogleAnalyticsUtil.getTracker(GeofenceTransitionsIntentService.this);
     }
 
     @Override
@@ -60,25 +60,33 @@ public class GeofenceTransitionsIntentService extends IntentService
 
     @Override
     public void onConnected(Bundle bundle) {
-        if (mGoogleApiClient != null) {
-            Location lastLocation = LocationUtil.getLastLocation(mGoogleApiClient);
-            if (lastLocation != null) {
-                DebugUtil.log("latitude = " + lastLocation.getLatitude() + " longitude = " + lastLocation.getLongitude());
-                switch (mGeofencingEvent.getGeofenceTransition()) {
-                    case Geofence.GEOFENCE_TRANSITION_ENTER:
-                        onEnter(mGeofencingEvent, lastLocation);
-                        break;
+        if (mGoogleApiClient == null) {
+            return;
+        }
 
-                    case Geofence.GEOFENCE_TRANSITION_EXIT:
-                        onExit(mGeofencingEvent, lastLocation);
-                        break;
+        Location lastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+        if (lastLocation == null) {
+            return;
+        }
 
-                    default:
-                        break;
-                }
-            }
+        DebugUtil.log("latitude = " + lastLocation.getLatitude() + " longitude = " + lastLocation.getLongitude());
+        if (mGeofencingEvent == null) {
+            return;
+        }
+        switch (mGeofencingEvent.getGeofenceTransition()) {
+            case Geofence.GEOFENCE_TRANSITION_ENTER:
+                onEnter(mGeofencingEvent, lastLocation);
+                break;
+
+            case Geofence.GEOFENCE_TRANSITION_EXIT:
+                onExit(mGeofencingEvent, lastLocation);
+                break;
+
+            default:
+                break;
         }
     }
+
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -96,21 +104,21 @@ public class GeofenceTransitionsIntentService extends IntentService
             return;
         }
         mInProgress = false;
-        connectGoogleApiClient();
 
         GeofencingEvent event = GeofencingEvent.fromIntent(intent);
 
         if (event.hasError()) {
-            TrackerUtil.sendEvent(mTracker, TR_CAT, TR_ACT_HAS_ERROR);
+            GoogleAnalyticsUtil.sendEvent(mTracker, TR_CAT, TR_ACT_HAS_ERROR);
             DebugUtil.log("event has error " + event.getErrorCode());
             return;
         }
 
         mGeofencingEvent = event;
+        connectGoogleApiClient();
     }
 
     private void onEnter(GeofencingEvent event, Location lastLocation) {
-        TrackerUtil.sendEvent(mTracker, TR_CAT, TR_ACT_ENTER);
+        GoogleAnalyticsUtil.sendEvent(mTracker, TR_CAT, TR_ACT_ENTER);
         DebugUtil.log("transition enter");
         int distance = (int) LocationUtil.getDistanceMeters(MapActivity.readLatLng(getApplicationContext()), new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "enter " + distance);
@@ -118,7 +126,7 @@ public class GeofenceTransitionsIntentService extends IntentService
     }
 
     private void onExit(GeofencingEvent event, Location lastLocation) {
-        TrackerUtil.sendEvent(mTracker, TR_CAT, TR_ACT_EXIT);
+        GoogleAnalyticsUtil.sendEvent(mTracker, TR_CAT, TR_ACT_EXIT);
         int distance = (int) LocationUtil.getDistanceMeters(MapActivity.readLatLng(getApplicationContext()), new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
         DebugUtil.log("transition exit");
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "exit " + distance);
@@ -142,11 +150,6 @@ public class GeofenceTransitionsIntentService extends IntentService
         Context context = getApplicationContext();
         Intent intent = new Intent(context, MainActivity.class);
         return PendingIntent.getActivity(context, 0, intent, 0);
-    }
-
-    private Tracker getTracker() {
-        HomeWifiApplication application = (HomeWifiApplication) this.getApplication();
-        return application.getDefaultTracker();
     }
 
     private void connectGoogleApiClient() {
