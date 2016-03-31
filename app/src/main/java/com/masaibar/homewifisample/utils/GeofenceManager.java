@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
+import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
@@ -82,6 +83,7 @@ public class GeofenceManager implements GoogleApiClient.ConnectionCallbacks, Goo
             @Override
             public void onResult(Status status) {
                 DebugUtil.log(status.toString());
+                Toast.makeText(mContext, "StatusCode = " + status.getStatusCode(), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -132,7 +134,7 @@ public class GeofenceManager implements GoogleApiClient.ConnectionCallbacks, Goo
 
     @Override
     public void onConnected(Bundle bundle) {
-        DebugUtil.log("GeofenceManager onConnected");
+        DebugUtil.log("GeofenceManager onConnected " + mActionType.toString());
 
         switch (mActionType) {
             case UPDATE:

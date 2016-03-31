@@ -1,6 +1,7 @@
 package com.masaibar.homewifisample;
 
 import android.content.Context;
+import android.location.Location;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -26,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
 
     private GeofenceManager mGeofenceManager;
     private GoogleApiClient mGoogleApiClient;
+    private Location mLastLocation;
 
     private Tracker mTracker;
 
@@ -62,7 +64,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 LatLng targetLatLng = MapActivity.readLatLng(context);
                 mGeofenceManager.update(targetLatLng, FENCE_RADIUS_METERS);
-                float distance = LocationUtil.getDistanceMetersFromCurrentLocation(mGoogleApiClient, targetLatLng);
+                if (mLastLocation == null) {
+                    return;
+                }
+                float distance = LocationUtil.getDistanceMeters(
+                        new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude()),
+                        targetLatLng
+                );
                 if (distance > FENCE_RADIUS_METERS) {
                     //対象範囲外から設定した際の処理
                     NetworkUtil.disableWifiIfDisconnected(context);
@@ -83,6 +91,7 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onConnected(Bundle bundle) {
                         buttonStart.setEnabled(true);
+                        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
                     }
 
                     @Override

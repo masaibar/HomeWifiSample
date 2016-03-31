@@ -76,15 +76,6 @@ public class LocationUtil {
     }
 
     /**
-     * 現在地からの距離を返す
-     * @return
-     */
-    public static float getDistanceMetersFromCurrentLocation(GoogleApiClient googleApiClient, LatLng latLng) {
-        Location lastLocation = getLastLocation(googleApiClient);
-        return getDistanceMeters(latLng, new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
-    }
-
-    /**
      * 二点のLatLng間の距離を返す
      */
     public static float getDistanceMeters(LatLng latLng1, LatLng latLng2) {
@@ -95,13 +86,5 @@ public class LocationUtil {
                 results);
 
         return results[0];
-    }
-
-    public static Location getLastLocation(GoogleApiClient googleApiClient) {
-        if (!googleApiClient.isConnected()) {
-            return null;
-        }
-
-        return LocationServices.FusedLocationApi.getLastLocation(googleApiClient);
     }
 }
