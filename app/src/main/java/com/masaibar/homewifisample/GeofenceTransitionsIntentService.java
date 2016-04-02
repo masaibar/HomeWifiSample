@@ -130,7 +130,7 @@ public class GeofenceTransitionsIntentService extends IntentService
         int distance = (int) LocationUtil.getDistanceMeters(MapActivity.readLatLng(getApplicationContext()), new LatLng(lastLocation.getLatitude(), lastLocation.getLongitude()));
         DebugUtil.log("transition exit");
         sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "exit " + distance);
-        NetworkUtil.disableWifi(getApplicationContext());
+        NetworkUtil.disableWifiIfDisconnected(getApplicationContext());
     }
 
     private void sendNotification(String title, String text) {
