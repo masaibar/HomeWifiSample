@@ -6,9 +6,13 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
+import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.Nullable;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
 import java.io.IOException;
@@ -33,7 +37,25 @@ public class LocationUtil {
     }
 
     /**
-     * リバースジオコーディングを行う
+     * ジオコーディングを行う 住所=>緯度経度
+     */
+    @Nullable
+    public static LatLng getLatLngFromAddress(Context context, String addressStr) {
+        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
+        try {
+            List<Address> addressList = geocoder.getFromLocationName(addressStr, 1);
+            if (addressList != null && addressList.size() > 0) {
+                Address address = addressList.get(0);
+                return new LatLng(address.getLatitude(), address.getLongitude());
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * リバースジオコーディングを行う 緯度経度=>住所
      * http://seesaawiki.jp/w/moonlight_aska/d/%B0%CC%C3%D6%BE%F0%CA%F3%A4%AB%A4%E9%BD%BB%BD%EA%A4%F2%BC%E8%C6%C0%A4%B9%A4%EB
      */
     public static String getAddressFromLatLng(Context context, LatLng latLng) {
@@ -54,27 +76,7 @@ public class LocationUtil {
     }
 
     /**
-     * ジオコーディングを行う
-     * @param addressStr 住所文字列
-     * @return Latlng 緯度経度
-     */
-    @Nullable
-    public static LatLng getLatLngFromAddress(Context context, String addressStr) {
-        Geocoder geocoder = new Geocoder(context, Locale.getDefault());
-        try {
-            List<Address> addressList = geocoder.getFromLocationName(addressStr, 1);
-            if (addressList != null && addressList.size() > 0) {
-                Address address = addressList.get(0);
-                return new LatLng(address.getLatitude(), address.getLongitude());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    /**
-     * 二点のLatLng間の距離を
+     * 二点のLatLng間の距離を返す
      */
     public static float getDistanceMeters(LatLng latLng1, LatLng latLng2) {
         float[] results = new float[3];
