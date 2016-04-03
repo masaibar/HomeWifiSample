@@ -36,6 +36,9 @@
         </activity>
 
         <service android:name=".GeofenceTransitionsIntentService" />
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="b7e01c431bced09ed7f3995f58db0c0670344078" />
     </application>
 
 </manifest>
