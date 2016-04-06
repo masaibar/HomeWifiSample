@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.gson.Gson;
 import com.masaibar.homewifisample.utils.LocationUtil;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -37,6 +38,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     private Circle mCircle;
     private float mZoomLevel = 17.0f; //マップのズームレベル
 
+    //TODO Map開くときIdも渡す必要あり
     public static void start(Context context) {
         Intent intent = new Intent(context, MapActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -157,7 +159,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
 
     private void setUpMap() {
         Context context = getApplicationContext();
-        if (hasSavedLatLng(context)) {
+        if(Geo.hasData(context, MainActivity.FENCE_ID)) {
             setUpPoint(readLatLng(context));
         } else {
             //TODO 保存してある座標がない場合は現在地を表示
@@ -188,21 +190,13 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     public static void saveLatLng(Context context, LatLng latLng) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        preferences.edit().putLong(PREF_KEY_LAT, Double.doubleToLongBits(latLng.latitude)).commit();
-        preferences.edit().putLong(PREF_KEY_LNG, Double.doubleToLongBits(latLng.longitude)).commit();
+        new Geo(true, MainActivity.FENCE_ID, "home", latLng).save(context);
     }
 
     public static LatLng readLatLng(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        double latitude = Double.longBitsToDouble(preferences.getLong(PREF_KEY_LAT, 0));
-        double longitude = Double.longBitsToDouble(preferences.getLong(PREF_KEY_LNG, 0));
-        return new LatLng(latitude, longitude);
-    }
-
-    public static boolean hasSavedLatLng(Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.contains(PREF_KEY_LAT) && preferences.contains(PREF_KEY_LNG);
+        Geo geo = Geo.getGeo(context, MainActivity.FENCE_ID);
+        LatLng latLng = geo.getLatLng();
+        return new LatLng(latLng.latitude, latLng.longitude);
     }
 
     private void addMarker(LatLng latLng) {

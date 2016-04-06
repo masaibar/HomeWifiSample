@@ -24,7 +24,7 @@ public class MainActivity extends AppCompatActivity {
     public final static float FENCE_RADIUS_METERS = 50.0f; //Geofence半径 50メートル
 
     //ジオフェンスID
-    private final static String FENCE_ID = "test";
+    public final static String FENCE_ID = "test";
 
     private GeofenceManager mGeofenceManager;
     private GoogleApiClient mGoogleApiClient;
