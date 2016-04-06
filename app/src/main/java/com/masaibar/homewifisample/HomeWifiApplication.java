@@ -2,8 +2,11 @@ package com.masaibar.homewifisample;
 
 import android.app.Application;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.GoogleAnalytics;
 import com.google.android.gms.analytics.Tracker;
+
+import io.fabric.sdk.android.Fabric;
 
 /**
  * Created by masaibar on 2016/03/25.
@@ -12,6 +15,12 @@ import com.google.android.gms.analytics.Tracker;
 
 public class HomeWifiApplication extends Application {
     private Tracker mTracker;
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
+        Fabric.with(getApplicationContext(), new Crashlytics());
+    }
 
     synchronized public Tracker getDefaultTracker() {
         if (mTracker == null) {

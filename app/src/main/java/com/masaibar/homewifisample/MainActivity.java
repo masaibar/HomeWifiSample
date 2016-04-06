@@ -18,7 +18,6 @@ import com.masaibar.homewifisample.utils.GeofenceManager;
 import com.masaibar.homewifisample.utils.LocationUtil;
 import com.masaibar.homewifisample.utils.NetworkUtil;
 import com.masaibar.homewifisample.utils.GoogleAnalyticsUtil;
-import io.fabric.sdk.android.Fabric;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -36,7 +35,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_main);
 
         final Context context = getApplicationContext();
