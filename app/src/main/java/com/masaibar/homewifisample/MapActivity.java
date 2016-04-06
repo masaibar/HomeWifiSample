@@ -30,9 +30,6 @@ import com.masaibar.homewifisample.utils.LocationUtil;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private static final String PREF_KEY_LAT = "latitude";
-    private static final String PREF_KEY_LNG = "longitude";
-
     private GoogleMap mGoogleMap;
     private Marker mMarker;
     private Circle mCircle;
@@ -190,7 +187,7 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     public static void saveLatLng(Context context, LatLng latLng) {
-        new Geo(true, MainActivity.FENCE_ID, "home", latLng).save(context);
+        new Geo(true, MainActivity.FENCE_ID, "home", latLng, MainActivity.FENCE_RADIUS_METERS).save(context);
     }
 
     public static LatLng readLatLng(Context context) {

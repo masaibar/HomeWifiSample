@@ -18,12 +18,14 @@ public class Geo {
     private String mId;
     private String mLabel;
     private LatLng mLatLng;
+    private float mRadius;
 
-    public Geo(boolean isEnabled, String id, String label, LatLng latLng) {
+    public Geo(boolean isEnabled, String id, String label, LatLng latLng, float radius) {
         mIsEnabled = isEnabled;
         mId = id;
         mLabel = label;
         mLatLng = latLng;
+        mRadius = radius;
     }
 
     public boolean isEnabled() {
@@ -40,6 +42,10 @@ public class Geo {
 
     public LatLng getLatLng() {
         return mLatLng;
+    }
+
+    public float getRadius() {
+        return mRadius;
     }
 
     public boolean save(Context context) {
