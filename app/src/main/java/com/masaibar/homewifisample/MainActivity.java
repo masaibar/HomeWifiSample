@@ -25,7 +25,6 @@ public class MainActivity extends AppCompatActivity {
     //ジオフェンスID
     public final static String FENCE_ID = "test";
 
-    private GeofenceManager mGeofenceManager;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private GeoHashMap mGeoHashMap;
@@ -40,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
         final Context context = getApplicationContext();
 
         mTracker = GoogleAnalyticsUtil.getTracker(MainActivity.this);
-        mGeofenceManager = new GeofenceManager(context, FENCE_ID);
+        final GeofenceManager geofenceManager = new GeofenceManager(context);
 
         findViewById(R.id.button_map).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -75,12 +74,13 @@ public class MainActivity extends AppCompatActivity {
                     Toast.makeText(context, "not hasKey " + FENCE_ID, Toast.LENGTH_SHORT).show();
                     return;
                 }
+                Geo targetGeo = mGeoHashMap.get(FENCE_ID);
                 LatLng targetLatLng = mGeoHashMap.getLatLng(FENCE_ID);
                 if (targetLatLng == null) {
                     Toast.makeText(context, "targetLatLng is null " + FENCE_ID, Toast.LENGTH_SHORT).show();
                     return;
                 }
-                mGeofenceManager.update(targetLatLng, FENCE_RADIUS_METERS);
+                geofenceManager.update(FENCE_ID, targetGeo);
                 if (mLastLocation == null) {
                     return;
                 }
@@ -98,7 +98,7 @@ public class MainActivity extends AppCompatActivity {
         findViewById(R.id.button_stop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mGeofenceManager.remove();
+                geofenceManager.remove(FENCE_ID);
             }
         });
 

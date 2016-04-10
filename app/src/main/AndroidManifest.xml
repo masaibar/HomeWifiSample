@@ -8,6 +8,8 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
+
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
     <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES"/>
 
     <application
@@ -18,8 +20,9 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
 
-         <meta-data android:name="com.google.android.gms.version"
-         android:value="@integer/google_play_services_version"/>
+        <meta-data
+            android:name="com.google.android.gms.version"
+            android:value="@integer/google_play_services_version"/>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -35,10 +38,17 @@
         <activity android:name=".MapActivity">
         </activity>
 
-        <service android:name=".GeofenceTransitionsIntentService" />
+        <service android:name=".GeofenceTransitionsIntentService"/>
+
+        <receiver android:name=".receiver.DeviceBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.REBOOT"/>
+            </intent-filter>
+        </receiver>
         <meta-data
             android:name="io.fabric.ApiKey"
-            android:value="b7e01c431bced09ed7f3995f58db0c0670344078" />
+            android:value="b7e01c431bced09ed7f3995f58db0c0670344078"/>
     </application>
 
 </manifest>

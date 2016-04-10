@@ -33,6 +33,14 @@ public class Geo {
         return mLatLng;
     }
 
+    public double getLatitude() {
+        return getLatLng().latitude;
+    }
+
+    public double getLongitude() {
+        return getLatLng().longitude;
+    }
+
     public float getRadius() {
         return mRadius;
     }

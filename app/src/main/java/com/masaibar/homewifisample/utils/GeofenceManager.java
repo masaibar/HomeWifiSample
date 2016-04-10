@@ -16,7 +16,7 @@ import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
+import com.masaibar.homewifisample.Geo;
 import com.masaibar.homewifisample.GeofenceTransitionsIntentService;
 
 import java.util.ArrayList;
@@ -25,7 +25,6 @@ import java.util.List;
 /**
  * Created by masaibar on 2016/03/28.
  */
-//TODO 単一のGeofenceにしか対応していない、複数対応出来るように
 public class GeofenceManager implements GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public enum ActionType {
@@ -35,24 +34,23 @@ public class GeofenceManager implements GoogleApiClient.ConnectionCallbacks, Goo
 
     private Context mContext;
     private ActionType mActionType;
+    private String mFenceId;
 
     private GoogleApiClient mGoogleApiClient;
 
     private Geofence mGeofence;
-    private String mRequestId;
 
-    public GeofenceManager(Context context, String requestId) {
+    public GeofenceManager(Context context) {
         mContext = context;
-        mRequestId = requestId;
     }
 
     /**
      * Geofenceの更新リクエストを投げる
      */
-    public void update(LatLng latLng, float radius) {
+    public void update(String fenceId, Geo geo) {
         mGeofence = new Geofence.Builder()
-                .setRequestId(mRequestId)
-                .setCircularRegion(latLng.latitude, latLng.longitude, radius)
+                .setRequestId(fenceId)
+                .setCircularRegion(geo.getLatitude(), geo.getLongitude(), geo.getRadius())
                 .setExpirationDuration(Geofence.NEVER_EXPIRE) //無期限
                 .setTransitionTypes(
                         Geofence.GEOFENCE_TRANSITION_ENTER |
@@ -60,7 +58,7 @@ public class GeofenceManager implements GoogleApiClient.ConnectionCallbacks, Goo
                 .setLoiteringDelay(300000)
                 .build();
 
-        connect(ActionType.UPDATE);
+        connect(ActionType.UPDATE, fenceId);
     }
 
     private void registGeofence() {
@@ -90,13 +88,13 @@ public class GeofenceManager implements GoogleApiClient.ConnectionCallbacks, Goo
         disconnect();
     }
 
-    public void remove() {
-        connect(ActionType.REMOVE);
+    public void remove(String fenceId) {
+        connect(ActionType.REMOVE, fenceId);
     }
 
-    private void removeGeofence() {
+    private void removeGeofence(String fenceId) {
         List<String> fenceIdList = new ArrayList<>();
-        fenceIdList.add(mRequestId);
+        fenceIdList.add(fenceId);
 
         if (mGoogleApiClient == null) {
             return;
@@ -106,8 +104,9 @@ public class GeofenceManager implements GoogleApiClient.ConnectionCallbacks, Goo
         LocationServices.GeofencingApi.removeGeofences(mGoogleApiClient, fenceIdList);
     }
 
-    private void connect(ActionType actionType) {
+    private void connect(ActionType actionType, String fenceId) {
         mActionType = actionType;
+        mFenceId = fenceId;
 
         mGoogleApiClient = new GoogleApiClient.Builder(mContext)
                 .addApi(LocationServices.API)
@@ -142,7 +141,7 @@ public class GeofenceManager implements GoogleApiClient.ConnectionCallbacks, Goo
                 break;
 
             case REMOVE:
-                removeGeofence();
+                removeGeofence(mFenceId);
                 break;
 
             default:
