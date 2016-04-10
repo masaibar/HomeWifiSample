@@ -1,5 +1,6 @@
 package com.masaibar.homewifisample.utils;
 
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.masaibar.homewifisample.BuildConfig;
@@ -31,5 +32,27 @@ public class DebugUtil {
         }
 
         Log.d(TAG, String.format(format, args));
+    }
+
+    /**
+     * debugビルド時のみ、condition == falseならRuntimeExceptionを投げる
+     */
+    public static void assertion(boolean condition, String message) {
+        if (condition || !isDebug()) {
+            return;
+        }
+
+        RuntimeException e;
+        if (TextUtils.isEmpty(message)) {
+            e = new RuntimeException();
+        } else {
+            e = new RuntimeException(message);
+        }
+
+        throw e;
+    }
+
+    public static void assertion(boolean condition) {
+        assertion(condition, null);
     }
 }
