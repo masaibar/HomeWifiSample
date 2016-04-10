@@ -2,10 +2,8 @@ package com.masaibar.homewifisample;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.preference.PreferenceManager;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -25,23 +23,26 @@ import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.gson.Gson;
+import com.masaibar.homewifisample.utils.DebugUtil;
 import com.masaibar.homewifisample.utils.LocationUtil;
 
 public class MapActivity extends AppCompatActivity implements OnMapReadyCallback {
 
-    private static final String PREF_KEY_LAT = "latitude";
-    private static final String PREF_KEY_LNG = "longitude";
+    private static final String EXTRA_FENCE_ID = "fenceId";
+
+    private GeoHashMap mGeoHashMap;
+    private String mFenceId;
 
     private GoogleMap mGoogleMap;
     private Marker mMarker;
     private Circle mCircle;
     private float mZoomLevel = 17.0f; //マップのズームレベル
 
-    //TODO Map開くときIdも渡す必要あり
-    public static void start(Context context) {
+    public static void start(Context context, String fenceId) {
+        DebugUtil.assertion(!TextUtils.isEmpty(fenceId), "fenceId is empty");
         Intent intent = new Intent(context, MapActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.putExtra(EXTRA_FENCE_ID, fenceId);
         context.startActivity(intent);
     }
 
@@ -49,6 +50,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map);
+
+        mFenceId = getIntent().getStringExtra(EXTRA_FENCE_ID);
+
+        mGeoHashMap = getGeoHashMapManager().getSavedGeoHashMap(getApplicationContext());
 
         SupportMapFragment mapFragment =
                 (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.fragment_map);
@@ -158,9 +163,8 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
     }
 
     private void setUpMap() {
-        Context context = getApplicationContext();
-        if(Geo.hasData(context, MainActivity.FENCE_ID)) {
-            setUpPoint(readLatLng(context));
+        if(mGeoHashMap.hasKey(mFenceId)) {
+            setUpPoint(mGeoHashMap.getLatLng(mFenceId));
         } else {
             //TODO 保存してある座標がない場合は現在地を表示
         }
@@ -186,17 +190,10 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         mGoogleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, mZoomLevel));
         addMarker(latLng);
         addCircle(latLng);
-        saveLatLng(getApplicationContext(), latLng);
-    }
 
-    public static void saveLatLng(Context context, LatLng latLng) {
-        new Geo(true, MainActivity.FENCE_ID, "home", latLng).save(context);
-    }
-
-    public static LatLng readLatLng(Context context) {
-        Geo geo = Geo.getGeo(context, MainActivity.FENCE_ID);
-        LatLng latLng = geo.getLatLng();
-        return new LatLng(latLng.latitude, latLng.longitude);
+        //todo labelを入力させる何か
+        mGeoHashMap.put(mFenceId, new Geo(true, "home", latLng, MainActivity.FENCE_RADIUS_METERS));
+        getGeoHashMapManager().save(getApplicationContext(), mGeoHashMap);
     }
 
     private void addMarker(LatLng latLng) {
@@ -217,5 +214,9 @@ public class MapActivity extends AppCompatActivity implements OnMapReadyCallback
         if (mCircle != null) {
             mCircle.remove();
         }
+    }
+
+    private GeoHashMapManager getGeoHashMapManager() {
+        return GeoHashMapManager.getInstance();
     }
 }

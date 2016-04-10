@@ -8,7 +8,6 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
-import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.analytics.Tracker;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -29,6 +28,7 @@ public class MainActivity extends AppCompatActivity {
     private GeofenceManager mGeofenceManager;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
+    private GeoHashMap mGeoHashMap;
 
     private Tracker mTracker;
 
@@ -46,14 +46,22 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 GoogleAnalyticsUtil.sendEvent(mTracker, "Click", "Map");
-                MapActivity.start(context);
+                MapActivity.start(context, FENCE_ID);
             }
         });
 
         findViewById(R.id.button_toast).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LatLng latLng = MapActivity.readLatLng(context);
+                if (!mGeoHashMap.hasKey(FENCE_ID)) {
+                    Toast.makeText(context, "not hasKey " + FENCE_ID, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                LatLng latLng = mGeoHashMap.getLatLng(FENCE_ID);
+                if (latLng == null) {
+                    Toast.makeText(context, "latLng is null " + FENCE_ID, Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 Toast.makeText(context, latLng.toString(), Toast.LENGTH_SHORT).show();
                 Toast.makeText(context, LocationUtil.getAddressFromLatLng(context, latLng), Toast.LENGTH_SHORT).show();
             }
@@ -63,7 +71,15 @@ public class MainActivity extends AppCompatActivity {
         buttonStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                LatLng targetLatLng = MapActivity.readLatLng(context);
+                if (!mGeoHashMap.hasKey(FENCE_ID)) {
+                    Toast.makeText(context, "not hasKey " + FENCE_ID, Toast.LENGTH_SHORT).show();
+                    return;
+                }
+                LatLng targetLatLng = mGeoHashMap.getLatLng(FENCE_ID);
+                if (targetLatLng == null) {
+                    Toast.makeText(context, "targetLatLng is null " + FENCE_ID, Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 mGeofenceManager.update(targetLatLng, FENCE_RADIUS_METERS);
                 if (mLastLocation == null) {
                     return;
@@ -113,6 +129,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         GoogleAnalyticsUtil.sendScreenView(mTracker, MainActivity.class.getSimpleName());
+        mGeoHashMap = getGeoHashMapManager().getSavedGeoHashMap(getApplicationContext());
         super.onResume();
     }
 
@@ -129,5 +146,9 @@ public class MainActivity extends AppCompatActivity {
         if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
+    }
+
+    private GeoHashMapManager getGeoHashMapManager() {
+        return GeoHashMapManager.getInstance();
     }
 }
