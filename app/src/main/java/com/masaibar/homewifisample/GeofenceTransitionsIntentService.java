@@ -69,8 +69,6 @@ public class GeofenceTransitionsIntentService extends IntentService
             return;
         }
 
-        DebugUtil.log("latitude = " + lastLocation.getLatitude() + " longitude = " + lastLocation.getLongitude());
-
         if (mGeofencingEvent == null) {
             return;
         }
@@ -134,6 +132,7 @@ public class GeofenceTransitionsIntentService extends IntentService
                 .getLatLng();
 
         if (NetworkUtil.isEnableOrEnablingWifi(context)) {
+            DebugUtil.log("onEnter, but Wifi is already enabled..");
             return;
         }
 
@@ -154,6 +153,7 @@ public class GeofenceTransitionsIntentService extends IntentService
                 .getLatLng();
 
         if (NetworkUtil.isDisabledOrDisablingWifi(context)) {
+            DebugUtil.log("onExit, but Wifi is already disabled..");
             return;
         }
 
