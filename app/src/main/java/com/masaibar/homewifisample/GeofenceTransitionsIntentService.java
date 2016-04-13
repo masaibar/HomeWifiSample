@@ -133,6 +133,7 @@ public class GeofenceTransitionsIntentService extends IntentService
 
         if (NetworkUtil.isEnableOrEnablingWifi(context)) {
             DebugUtil.log("onEnter, but Wifi is already enabled..");
+            sendNotification(getGeofenceName(event), "already enabled.."); //todo 仮置き
             return;
         }
 
@@ -154,6 +155,7 @@ public class GeofenceTransitionsIntentService extends IntentService
 
         if (NetworkUtil.isDisabledOrDisablingWifi(context)) {
             DebugUtil.log("onExit, but Wifi is already disabled..");
+            sendNotification(getGeofenceName(event), "already disabled.."); //todo 仮置き
             return;
         }
 
