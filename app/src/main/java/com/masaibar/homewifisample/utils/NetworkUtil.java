@@ -11,6 +11,7 @@ import android.net.wifi.WifiManager;
 public class NetworkUtil {
 
     private static String TYPE_NAME_WIFI = "WIFI";
+    private static int MAX_RETRY_WIFI_SETTING = 2;
 
     /**
      * Wifiの状態を返す
@@ -26,14 +27,14 @@ public class NetworkUtil {
         if(isWifiConnected(context)) {
             return;
         }
-        getWifiManager(context).setWifiEnabled(true);
+        setWifiSetting(context, true, MAX_RETRY_WIFI_SETTING);
     }
 
     /**
      * Wifiを無効にする
      */
     public static void disableWifi(Context context) {
-        getWifiManager(context).setWifiEnabled(false);
+        setWifiSetting(context, false, MAX_RETRY_WIFI_SETTING);
     }
 
     /**
@@ -44,6 +45,21 @@ public class NetworkUtil {
             return;
         }
         disableWifi(context);
+    }
+
+    /**
+     * 失敗する場合がある(?)ので、リトライできるように
+     */
+    private static boolean setWifiSetting(Context context, boolean enable, int retryCount) {
+        try {
+            getWifiManager(context).setWifiEnabled(enable);
+            return true;
+        } catch (SecurityException e) {
+            if (retryCount == 1) {
+                return false;
+            }
+            return setWifiSetting(context, enable, retryCount -1);
+        }
     }
 
     private static WifiManager getWifiManager(Context context) {
