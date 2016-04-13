@@ -125,27 +125,43 @@ public class GeofenceTransitionsIntentService extends IntentService
     }
 
     private void onEnter(GeofencingEvent event, LatLng lastLatLng) {
+        Context context = getApplicationContext();
         GoogleAnalyticsUtil.sendEvent(mTracker, TR_CAT, TR_ACT_ENTER);
         DebugUtil.log("transition enter");
         LatLng savedLatLng = getGeoHashMapManager()
                 .getSavedGeoHashMap(getApplicationContext())
                 .get(getGeofenceName(event))
                 .getLatLng();
-        int distance = (int) LocationUtil.getDistanceMeters(savedLatLng, lastLatLng);
-        sendNotification(getGeofenceName(event), "enter " + distance);
-        NetworkUtil.enableWifi(getApplicationContext());
+
+        if (NetworkUtil.isEnableOrEnablingWifi(context)) {
+            return;
+        }
+
+        //本当に有効に変更した時のみ通知を送信する
+        if (NetworkUtil.enableWifiIfDisconneted(context)) {
+            int distance = (int) LocationUtil.getDistanceMeters(savedLatLng, lastLatLng);
+            sendNotification(getGeofenceName(event), "enter " + distance);
+        }
     }
 
     private void onExit(GeofencingEvent event, LatLng lastLatLng) {
+        Context context = getApplicationContext();
         GoogleAnalyticsUtil.sendEvent(mTracker, TR_CAT, TR_ACT_EXIT);
+        DebugUtil.log("transition exit");
         LatLng savedLatLng = getGeoHashMapManager()
                 .getSavedGeoHashMap(getApplicationContext())
                 .get(getGeofenceName(event))
                 .getLatLng();
-        int distance = (int) LocationUtil.getDistanceMeters(savedLatLng, lastLatLng);
-        DebugUtil.log("transition exit");
-        sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "exit " + distance);
-        NetworkUtil.disableWifiIfDisconnected(getApplicationContext());
+
+        if (NetworkUtil.isDisabledOrDisablingWifi(context)) {
+            return;
+        }
+
+        //本当に無効に変更した時のみ通知を送信する
+        if (NetworkUtil.disableWifiIfDisconnected(context)) {
+            int distance = (int) LocationUtil.getDistanceMeters(savedLatLng, lastLatLng);
+            sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "exit " + distance);
+        }
     }
 
     private void sendNotification(String title, String text) {

@@ -14,37 +14,56 @@ public class NetworkUtil {
     private static int MAX_RETRY_WIFI_SETTING = 2;
 
     /**
-     * Wifiの状態を返す
+     * Wifiが有効かどうか返す
      */
-    public static int getWifiState(Context context) {
-        return getWifiManager(context).getWifiState();
+    public static boolean isEnableOrEnablingWifi(Context context) {
+        int wifiState = getWifiState(context);
+        return wifiState == WifiManager.WIFI_STATE_ENABLED ||
+                wifiState == WifiManager.WIFI_STATE_ENABLING;
+    }
+
+
+    /**
+     * Wifiが無効かどうか返す
+     */
+    public static boolean isDisabledOrDisablingWifi(Context context) {
+        int wifiState = getWifiState(context);
+        return wifiState == WifiManager.WIFI_STATE_DISABLED ||
+                wifiState == WifiManager.WIFI_STATE_DISABLING;
     }
 
     /**
-     * Wifiを有効にする
+     * Wifiが未接続かつ無効ならばWifiを有効にする
      */
-    public static void enableWifi(Context context) {
-        if(isWifiConnected(context)) {
-            return;
+    public static boolean enableWifiIfDisconneted(Context context) {
+        if (isWifiConnected(context) || isEnableOrEnablingWifi(context)) {
+            return false;
         }
-        setWifiSetting(context, true, MAX_RETRY_WIFI_SETTING);
-    }
-
-    /**
-     * Wifiを無効にする
-     */
-    public static void disableWifi(Context context) {
-        setWifiSetting(context, false, MAX_RETRY_WIFI_SETTING);
+        return enableWifi(context);
     }
 
     /**
      * Wifiが未接続且つ有効ならばWifiを無効にする
      */
-    public static void disableWifiIfDisconnected(Context context) {
+    public static boolean disableWifiIfDisconnected(Context context) {
         if (isWifiConnected(context)) {
-            return;
+            return false;
         }
-        disableWifi(context);
+        return disableWifi(context);
+    }
+
+    /**
+     * Wifiを有効にする
+     */
+    private static boolean enableWifi(Context context) {
+        return setWifiSetting(context, true, MAX_RETRY_WIFI_SETTING);
+    }
+
+    /**
+     * Wifiを無効にする
+     */
+    private static boolean disableWifi(Context context) {
+        return setWifiSetting(context, false, MAX_RETRY_WIFI_SETTING);
     }
 
     /**
@@ -58,7 +77,7 @@ public class NetworkUtil {
             if (retryCount == 1) {
                 return false;
             }
-            return setWifiSetting(context, enable, retryCount -1);
+            return setWifiSetting(context, enable, retryCount - 1);
         }
     }
 
@@ -72,6 +91,23 @@ public class NetworkUtil {
 
     private static boolean isWifiConnected(Context context) {
         NetworkInfo info = getNetworkInfo(context);
-        return info.isConnectedOrConnecting() && info.getTypeName().equals(TYPE_NAME_WIFI);
+        boolean isConnectedOrConnecting = info.isConnectedOrConnecting();
+        boolean isEqualWifi = info.getTypeName().equals(TYPE_NAME_WIFI);
+        DebugUtil.log("isConnectedOrConnecting = " + isConnectedOrConnecting + ", isEqualWifi =" + isEqualWifi);
+        return isConnectedOrConnecting && isEqualWifi;
+    }
+
+    /**
+     * Wifiの状態を返す
+     * WIFI_STATE_DISABLING = 0;
+     * WIFI_STATE_DISABLED = 1;
+     * WIFI_STATE_ENABLING = 2;
+     * WIFI_STATE_ENABLED = 3;
+     * WIFI_STATE_UNKNOWN = 4;
+     */
+    private static int getWifiState(Context context) {
+        int wifiState = getWifiManager(context).getWifiState();
+        DebugUtil.log("WifiState = " + wifiState);
+        return wifiState;
     }
 }
