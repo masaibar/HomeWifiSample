@@ -141,6 +141,8 @@ public class GeofenceTransitionsIntentService extends IntentService
         if (NetworkUtil.enableWifiIfDisconneted(context)) {
             int distance = (int) LocationUtil.getDistanceMeters(savedLatLng, lastLatLng);
             sendNotification(getGeofenceName(event), "enter " + distance);
+        } else {
+            sendNotification(getGeofenceName(event), "enable wifi failed"); //todo 仮置き
         }
     }
 
@@ -163,6 +165,8 @@ public class GeofenceTransitionsIntentService extends IntentService
         if (NetworkUtil.disableWifiIfDisconnected(context)) {
             int distance = (int) LocationUtil.getDistanceMeters(savedLatLng, lastLatLng);
             sendNotification(event.getTriggeringGeofences().get(0).getRequestId(), "exit " + distance);
+        } else {
+            sendNotification(getGeofenceName(event), "disable wifi failed"); //todo 仮置き
         }
     }
 
