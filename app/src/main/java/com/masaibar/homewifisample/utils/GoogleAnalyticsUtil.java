@@ -9,7 +9,7 @@ import android.text.TextUtils;
 import com.google.android.gms.analytics.HitBuilders;
 import com.google.android.gms.analytics.StandardExceptionParser;
 import com.google.android.gms.analytics.Tracker;
-import com.masaibar.homewifisample.HomeWifiApplication;
+import com.masaibar.homewifisample.App;
 
 /**
  * Created by masaibar on 2016/03/25.
@@ -64,10 +64,10 @@ public class GoogleAnalyticsUtil {
     }
 
     public static Tracker getTracker(Activity activity) {
-        return ((HomeWifiApplication) activity.getApplication()).getDefaultTracker();
+        return ((App) activity.getApplication()).getDefaultTracker();
     }
 
     public static Tracker getTracker(Service service) {
-        return ((HomeWifiApplication) service.getApplication()).getDefaultTracker();
+        return ((App) service.getApplication()).getDefaultTracker();
     }
 }
