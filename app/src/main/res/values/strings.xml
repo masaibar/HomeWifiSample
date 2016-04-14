@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">HomeWifiSample</string>
+    <string name="app_name">HomeWifiSampleForRemoteLogCat</string>
 
     <!--Map-->
     <string name="edit_search_hint">住所を入力して位置を検索</string>
